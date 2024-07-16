@@ -33,10 +33,12 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Error: Start station %s does not exist\n", startStationName)
 		return
 	}
+
 	if _, exists := stations[endStationName]; !exists {
 		fmt.Fprintf(os.Stderr, "Error: End station %s does not exist\n", endStationName)
 		return
 	}
+
 	if startStationName == endStationName {
 		fmt.Fprintln(os.Stderr, "Error: Start and end station are the same")
 		return

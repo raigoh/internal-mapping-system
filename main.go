@@ -49,5 +49,5 @@ func main() {
 		fmt.Fprintln(os.Stderr, "Error finding paths:", err)
 		return
 	}
-	functions.SimulateTrains(paths, numTrains)
+	functions.SimulateTrains2(paths, numTrains)
 }

@@ -3,6 +3,7 @@ package functions
 import (
 	"fmt"
 	"strings"
+	"time"
 )
 
 // New struct for trains
@@ -11,6 +12,7 @@ type trainsPaths struct {
 	Route     []string
 	RouteStep int
 	Finnished bool
+	Skip      bool
 }
 
 // SimulateTrains simulates train movements and outputs the movements to the terminal
@@ -64,14 +66,58 @@ func SimulateTrains2(paths [][]string, numTrains int) {
 
 	//Store all trains in a slice called trains
 	var trains []trainsPaths
+	var tempRoute []string
 	temp := 0
 
+	shortestPathLen := 99999999
+	longestPathLen := 0
+	doubleTheShort := false
+
+	//Find the shortest and longest path in the paths string
+	for _, r := range paths {
+
+		if shortestPathLen > len(r) {
+			shortestPathLen = len(r)
+		}
+		if longestPathLen < len(r) {
+			longestPathLen = len(r)
+		}
+	}
+
+	//fmt.Println("Shortest path: ", shortestPath, " with the length of ", shortestPathLen)
+	//fmt.Println("Longest path: ", longestPath, " with the length of ", longestPathLen)
+
+	if shortestPathLen*2 <= longestPathLen {
+		//fmt.Println("Its better to have two shortest paths in a row than longer and shorter with the last trains")
+		doubleTheShort = true
+	}
 	//Make every train a part of a slice as a trainsPath structure. That way, every train can have their own route dedicated to them
 	for x := range numTrains {
 		if temp >= len(paths) {
 			temp = 0
 		}
-		trains = append(trains, trainsPaths{TrainID: x, Route: paths[temp], RouteStep: 0, Finnished: false})
+
+		skipTurn := false
+
+		if x == numTrains-1 && doubleTheShort {
+			//Check the shortest path
+			shortLen := 0
+			skipTurn = true
+			for _, str := range paths {
+				if len(str) <= shortLen || shortLen == 0 {
+					shortLen = len(str)
+					tempRoute = str
+					//fmt.Println("Shortest: ", tempRoute)
+					time.Sleep(1 * time.Second)
+				}
+			}
+
+		} else {
+			tempRoute = paths[temp]
+			//fmt.Println(tempRoute)
+		}
+
+		trains = append(trains, trainsPaths{TrainID: x, Route: tempRoute, RouteStep: 0, Finnished: false, Skip: skipTurn})
 
 		//Temp chooses the route for every train
 		temp++
@@ -94,9 +140,12 @@ func SimulateTrains2(paths [][]string, numTrains int) {
 			if !trains[t].Finnished {
 
 				// increase route step
-				trains[t].RouteStep++
-				fmt.Print("T", t+1, "-", trains[t].Route[trains[t].RouteStep], " ")
-
+				if !trains[t].Skip {
+					trains[t].RouteStep++
+					fmt.Print("T", t+1, "-", trains[t].Route[trains[t].RouteStep], " ")
+				} else {
+					trains[t].Skip = false
+				}
 				// Check if the train reached the last station
 				if trains[t].RouteStep >= len(trains[t].Route)-1 {
 					trains[t].Finnished = true
@@ -115,7 +164,7 @@ func SimulateTrains2(paths [][]string, numTrains int) {
 			}
 
 		}
-		// This just marks the end of a turn, by starting a new line
+		// This just marks the end of a turn, by starting a new turn
 		fmt.Println("")
 	}
 }

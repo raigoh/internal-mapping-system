@@ -59,5 +59,6 @@ func FindPaths(start, end string, stations map[string]*data.Station, numTrains i
 	if len(paths) == 0 {
 		return nil, errors.New("no paths found")
 	}
+
 	return paths, nil
 }

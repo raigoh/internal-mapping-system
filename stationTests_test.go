@@ -30,7 +30,7 @@ func TestStations(t *testing.T) {
 		expectedTurns int
 	}{
 		{"network.map", "waterloo", "st_pancras", 4, 3},
-		{"network.map", "beginning", "terminus", 4, 11},
+		{"network.map", "beginning", "terminus", 20, 11},
 		{"network.map", "beethoven", "part", 4, 6},
 		{"network.map", "small", "large", 4, 8},
 		{"network.map", "two", "four", 4, 6},

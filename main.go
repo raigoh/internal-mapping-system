@@ -17,7 +17,6 @@ func main() {
 	startStationName := os.Args[2]
 	endStationName := os.Args[3]
 	numTrains, err := strconv.Atoi(os.Args[4])
-
 	if err != nil || numTrains <= 0 {
 		fmt.Fprintln(os.Stderr, "Error: number_of_trains must be a valid positive integer")
 		return

@@ -2,169 +2,97 @@ package functions
 
 import (
 	"fmt"
-	"strings"
-	"time"
 )
 
-// New struct for trains
+// trainsPaths represents the state and route of a train
 type trainsPaths struct {
 	TrainID   int
 	Route     []string
 	RouteStep int
-	Finnished bool
+	Finished  bool
 	Skip      bool
 }
 
-// SimulateTrains simulates train movements and outputs the movements to the terminal
-func SimulateTrains(paths [][]string, numTrains int) {
-	// Initialize train locations at the starting position
-	trainLocations := make(map[string]int)
-	for i := 0; i < numTrains; i++ {
-		trainLocations[fmt.Sprintf("T%d", i+1)] = 0
-	}
-
-	// Simulation loop, runs until all trains have finished their routes
-	for step := 0; ; step++ {
-		move := []string{}  // Stores movements made in the current step
-		finishedTrains := 0 // Tracks how many trains have finished their routes
-
-		// Iterate over each train
-		for i := 0; i < numTrains; i++ {
-			trainName := fmt.Sprintf("T%d", i+1)
-
-			// If there are no more paths for this train, mark it as finished
-			if i >= len(paths) {
-				finishedTrains++
-				continue
-			}
-			currentPos := trainLocations[trainName]
-
-			// If the train has reached the end of its path, mark it as finished
-			if currentPos >= len(paths[i])-1 {
-				finishedTrains++
-				continue
-			}
-
-			// Determine the next station on the current train's path
-			nextStation := paths[i][currentPos+1]
-			move = append(move, fmt.Sprintf("%s-%s", trainName, nextStation))
-			trainLocations[trainName]++
-		}
-
-		// If all trains have finished their routes, exit the simulation loop
-		if finishedTrains == numTrains {
-			break
-		}
-
-		// Output the movements made in the current step
-		fmt.Println(strings.Join(move, " "))
-	}
-}
-
-// SimulateTrains simulates train movements and outputs the movements to the terminal
+// SimulateTrains2 simulates train movements along predefined paths
 func SimulateTrains2(paths [][]string, numTrains int) {
-
-	//Store all trains in a slice called trains
 	var trains []trainsPaths
 	var tempRoute []string
-	temp := 0
+	routeIndex := 0
 
-	shortestPathLen := 99999999
+	shortestPathLen := int(^uint(0) >> 1) // Max int value
 	longestPathLen := 0
 	doubleTheShort := false
 
-	//Find the shortest and longest path in the paths string
-	for _, r := range paths {
-
-		if shortestPathLen > len(r) {
-			shortestPathLen = len(r)
+	// Determine the shortest and longest paths
+	for _, route := range paths {
+		if len(route) < shortestPathLen {
+			shortestPathLen = len(route)
 		}
-		if longestPathLen < len(r) {
-			longestPathLen = len(r)
+		if len(route) > longestPathLen {
+			longestPathLen = len(route)
 		}
 	}
-
-	//fmt.Println("Shortest path: ", shortestPath, " with the length of ", shortestPathLen)
-	//fmt.Println("Longest path: ", longestPath, " with the length of ", longestPathLen)
 
 	if shortestPathLen*2 <= longestPathLen {
-		//fmt.Println("Its better to have two shortest paths in a row than longer and shorter with the last trains")
 		doubleTheShort = true
 	}
-	//Make every train a part of a slice as a trainsPath structure. That way, every train can have their own route dedicated to them
-	for x := range numTrains {
-		if temp >= len(paths) {
-			temp = 0
+
+	// Initialize trains with routes
+	for i := 0; i < numTrains; i++ {
+		if routeIndex >= len(paths) {
+			routeIndex = 0
 		}
 
 		skipTurn := false
-
-		if x == numTrains-1 && doubleTheShort {
-			//Check the shortest path
+		if i == numTrains-1 && doubleTheShort {
 			shortLen := 0
 			skipTurn = true
-			for _, str := range paths {
-				if len(str) <= shortLen || shortLen == 0 {
-					shortLen = len(str)
-					tempRoute = str
-					//fmt.Println("Shortest: ", tempRoute)
-					time.Sleep(1 * time.Second)
+			for _, route := range paths {
+				if len(route) < shortLen || shortLen == 0 {
+					shortLen = len(route)
+					tempRoute = route
 				}
 			}
-
 		} else {
-			tempRoute = paths[temp]
-			//fmt.Println(tempRoute)
+			tempRoute = paths[routeIndex]
 		}
 
-		trains = append(trains, trainsPaths{TrainID: x, Route: tempRoute, RouteStep: 0, Finnished: false, Skip: skipTurn})
-
-		//Temp chooses the route for every train
-		temp++
+		trains = append(trains, trainsPaths{TrainID: i, Route: tempRoute, RouteStep: 0, Finished: false, Skip: skipTurn})
+		routeIndex++
 	}
 
-	allFinnished := false
-
-	for step := 1; !allFinnished; step++ {
-
-		check := step*len(paths) - 1
-
-		if check >= numTrains {
-			check = numTrains - 1
+	// Simulate train movements
+	allFinished := false
+	for step := 1; !allFinished; step++ {
+		checkLimit := step*len(paths) - 1
+		if checkLimit >= numTrains {
+			checkLimit = numTrains - 1
 		}
 
-		// Go throu the steps.. t = step
-		for t := 0; t <= check; t++ {
-
-			// If train has finnished, skip it
-			if !trains[t].Finnished {
-
-				// increase route step
-				if !trains[t].Skip {
-					trains[t].RouteStep++
-					fmt.Print("T", t+1, "-", trains[t].Route[trains[t].RouteStep], " ")
+		for t := 0; t <= checkLimit; t++ {
+			train := &trains[t]
+			if !train.Finished {
+				if !train.Skip {
+					train.RouteStep++
+					fmt.Print("T", train.TrainID+1, "-", train.Route[train.RouteStep], " ")
 				} else {
-					trains[t].Skip = false
+					train.Skip = false
 				}
-				// Check if the train reached the last station
-				if trains[t].RouteStep >= len(trains[t].Route)-1 {
-					trains[t].Finnished = true
+				if train.RouteStep >= len(train.Route)-1 {
+					train.Finished = true
 				}
 			}
+		}
 
-			// Check if all trains have finnished and break from the for loop
-			allFinnished = true
-			for _, t := range trains {
-				if !t.Finnished {
-					allFinnished = false
-				}
-			}
-			if allFinnished {
+		// Check if all trains have finished
+		allFinished = true
+		for _, train := range trains {
+			if !train.Finished {
+				allFinished = false
 				break
 			}
-
 		}
-		// This just marks the end of a turn, by starting a new turn
+
 		fmt.Println("")
 	}
 }

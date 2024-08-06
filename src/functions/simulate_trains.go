@@ -61,10 +61,16 @@ func SimulateTrains2(paths [][]string, numTrains int) {
 		routeIndex++
 	}
 
+	// Prepare paths for printTestOutput
+	simulatedPaths := make([][]string, numTrains)
+	for i := range simulatedPaths {
+		simulatedPaths[i] = make([]string, 0)
+	}
+
 	// Simulate train movements
 	allFinished := false
-	for step := 1; !allFinished; step++ {
-		checkLimit := step*len(paths) - 1
+	for step := 0; !allFinished; step++ {
+		checkLimit := (step+1)*len(paths) - 1
 		if checkLimit >= numTrains {
 			checkLimit = numTrains - 1
 		}
@@ -73,14 +79,18 @@ func SimulateTrains2(paths [][]string, numTrains int) {
 			train := &trains[t]
 			if !train.Finished {
 				if !train.Skip {
+					simulatedPaths[t] = append(simulatedPaths[t], train.Route[train.RouteStep])
 					train.RouteStep++
-					fmt.Print("T", train.TrainID+1, "-", train.Route[train.RouteStep], " ")
 				} else {
 					train.Skip = false
+					simulatedPaths[t] = append(simulatedPaths[t], train.Route[train.RouteStep])
 				}
 				if train.RouteStep >= len(train.Route)-1 {
 					train.Finished = true
 				}
+			} else {
+				// Add the last station again for finished trains
+				simulatedPaths[t] = append(simulatedPaths[t], train.Route[len(train.Route)-1])
 			}
 		}
 
@@ -92,7 +102,32 @@ func SimulateTrains2(paths [][]string, numTrains int) {
 				break
 			}
 		}
+	}
 
-		fmt.Println("")
+	// Print the simulated paths using the new function
+	printTestOutput(simulatedPaths)
+}
+
+// printTestOutput prints the test output in a more readable format
+func printTestOutput(paths [][]string) {
+	maxLen := 0
+	for _, path := range paths {
+		if len(path) > maxLen {
+			maxLen = len(path)
+		}
+	}
+
+	for step := 0; step < maxLen; step++ {
+		changes := false
+		line := fmt.Sprintf("Step %d: ", step)
+		for trainID, path := range paths {
+			if step < len(path) && (step == 0 || path[step] != path[step-1]) {
+				line += fmt.Sprintf("T%d-%s ", trainID+1, path[step])
+				changes = true
+			}
+		}
+		if changes {
+			fmt.Println(line)
+		}
 	}
 }

@@ -22,28 +22,25 @@ type PathWithOccupation struct {
 // FindPaths attempts to find all possible paths and select the best ones for multiple trains
 // It returns the selected paths, their occupation information, and any error encountered
 func FindPaths(start, end string, stations map[string]*data.Station, numTrains int) ([][]string, [][]OccupationInfo, error) {
-	// Find all possible paths from start to end
 	allPaths := findAllPaths(start, end, stations)
 	if len(allPaths) == 0 {
 		return nil, nil, fmt.Errorf("no paths found")
 	}
 
-	// Sort paths by length (shortest first) to prioritize shorter paths
+	// Sort paths by length (shortest first)
 	sort.Slice(allPaths, func(i, j int) bool {
 		return len(allPaths[i]) < len(allPaths[j])
 	})
 
-	// Select paths that don't overlap based on strict criteria
-	selectedPaths := selectStrictNoOverlapPaths(allPaths, numTrains, start, end)
+	selectedPaths := selectOptimalPaths(allPaths, numTrains, start, end)
 
-	// Create occupation info for selected paths
 	paths := make([][]string, len(selectedPaths))
 	occupations := make([][]OccupationInfo, len(selectedPaths))
 	for i, path := range selectedPaths {
 		paths[i] = path
 		occupations[i] = createOccupations(path, i)
 	}
-
+	// fmt.Println("PATH", paths)
 	return paths, occupations, nil
 }
 
@@ -78,62 +75,63 @@ func findAllPaths(start, end string, stations map[string]*data.Station) [][]stri
 	return allPaths
 }
 
-// selectStrictNoOverlapPaths selects paths that don't overlap based on strict criteria
-func selectStrictNoOverlapPaths(allPaths [][]string, numTrains int, start, end string) [][]string {
+func selectOptimalPaths(allPaths [][]string, numTrains int, start, end string) [][]string {
 	selectedPaths := make([][]string, 0, numTrains)
 	occupiedStations := make(map[string]map[int]bool)
 
-	for i := 0; i < numTrains && i < len(allPaths); i++ {
-		var selectedPath []string
-		// Find the first path that doesn't overlap with previously selected paths
-		for _, path := range allPaths {
-			if !strictPathOverlaps(path, occupiedStations, start, end) {
-				selectedPath = path
-				break
-			}
-		}
-
-		if selectedPath == nil {
-			break // No more non-overlapping paths available
-		}
-
-		selectedPaths = append(selectedPaths, selectedPath)
-		updateOccupiedStations(selectedPath, occupiedStations, start, end)
-	}
-
-	return selectedPaths
-}
-
-// strictPathOverlaps checks if a path overlaps with previously occupied stations
-func strictPathOverlaps(path []string, occupiedStations map[string]map[int]bool, start, end string) bool {
-	for time, station := range path {
-		if station != start && station != end {
-			if _, exists := occupiedStations[station]; exists {
-				// Check if the station is occupied at the current time or adjacent time steps
-				for t := max(0, time-1); t <= time+1; t++ {
-					if occupiedStations[station][t] {
+	// Helper function to check if a path conflicts with existing paths
+	pathConflicts := func(path []string, startTime int) bool {
+		for t, station := range path {
+			if station != start && station != end {
+				if occupied, exists := occupiedStations[station]; exists {
+					if occupied[startTime+t] {
 						return true
 					}
 				}
 			}
 		}
+		return false
 	}
-	return false
-}
 
-// updateOccupiedStations marks stations as occupied for a given path
-func updateOccupiedStations(path []string, occupiedStations map[string]map[int]bool, start, end string) {
-	for time, station := range path {
-		if station != start && station != end {
-			if occupiedStations[station] == nil {
-				occupiedStations[station] = make(map[int]bool)
+	// Helper function to add a path to the selected paths
+	addPath := func(path []string, startTime int) {
+		delayedPath := make([]string, startTime+len(path))
+		for i := 0; i < startTime; i++ {
+			delayedPath[i] = start
+		}
+		copy(delayedPath[startTime:], path)
+		selectedPaths = append(selectedPaths, delayedPath)
+		for t, station := range path {
+			if station != start && station != end {
+				if occupiedStations[station] == nil {
+					occupiedStations[station] = make(map[int]bool)
+				}
+				occupiedStations[station][startTime+t] = true
 			}
-			occupiedStations[station][time] = true
 		}
 	}
+
+	maxPathLength := len(allPaths[len(allPaths)-1])
+	timeStep := 0
+
+	for len(selectedPaths) < numTrains {
+		for _, path := range allPaths {
+			if len(selectedPaths) >= numTrains {
+				break
+			}
+			if !pathConflicts(path, timeStep) {
+				addPath(path, timeStep)
+			}
+		}
+		timeStep++
+		if timeStep > maxPathLength*numTrains {
+			break // Safety check to prevent infinite loop
+		}
+	}
+
+	return selectedPaths
 }
 
-// createOccupations generates occupation information for a given path
 func createOccupations(path []string, trainID int) []OccupationInfo {
 	occupations := make([]OccupationInfo, len(path))
 	for i, station := range path {
@@ -142,68 +140,67 @@ func createOccupations(path []string, trainID int) []OccupationInfo {
 	return occupations
 }
 
-// max returns the maximum of two integers
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
-// // FindPaths attempts to find up to numTrains unique paths from start to end using BFS
-// func FindPaths(start, end string, stations map[string]*data.Station, numTrains int) ([][]string, error) {
-// 	var paths [][]string
-
-// 	// Preserve original connections
-// 	originalConnections := make(map[string][]*data.Station)
-// 	for name, station := range stations {
-// 		originalConnections[name] = append([]*data.Station{}, station.Connections...)
+// func applyDelay(path []string, delay int) []string {
+// 	delayedPath := make([]string, delay+len(path))
+// 	copy(delayedPath[delay:], path)
+// 	for i := 0; i < delay; i++ {
+// 		delayedPath[i] = path[0] // Stay at the start station during the delay
 // 	}
+// 	return delayedPath
+// }
 
-// 	// Attempt to find paths in a loop up to numTrains times
-// 	for i := 0; i < numTrains; i++ {
-// 		// Use BFS to find the shortest path
-// 		predecessor, err := Bfs(start, end, stations)
-// 		if err != nil {
-// 			break // Exit the loop if no path is found
+// // Helper function to check if a slice of slices contains a specific slice
+// func contains(paths [][]string, path []string) bool {
+// 	for _, p := range paths {
+// 		if reflect.DeepEqual(p, path) {
+// 			return true
 // 		}
+// 	}
+// 	return false
+// }
 
-// 		// Reconstruct path from end to start using predecessors
-// 		path := []string{}
-// 		for at := end; at != ""; at = predecessor[at] {
-// 			path = append([]string{at}, path...)
-// 		}
-// 		paths = append(paths, path)
-
-// 		// Mark the path as used by removing connections
-// 		for j := 0; j < len(path)-1; j++ {
-// 			current := path[j]
-// 			next := path[j+1]
-// 			for k, conn := range stations[current].Connections {
-// 				if conn.Name == next {
-// 					stations[current].Connections = append(stations[current].Connections[:k], stations[current].Connections[k+1:]...)
-// 					break
-// 				}
-// 			}
-// 			// Also remove the reverse connection
-// 			for k, conn := range stations[next].Connections {
-// 				if conn.Name == current {
-// 					stations[next].Connections = append(stations[next].Connections[:k], stations[next].Connections[k+1:]...)
-// 					break
+// // strictPathOverlaps remains the same as in the original code
+// func strictPathOverlaps(path []string, occupiedStations map[string]map[int]bool, start, end string) bool {
+// 	for time, station := range path {
+// 		if station != start && station != end {
+// 			if _, exists := occupiedStations[station]; exists {
+// 				// Check if the station is occupied at the current time or adjacent time steps
+// 				for t := max(0, time-1); t <= time+1; t++ {
+// 					if occupiedStations[station][t] {
+// 						return true
+// 					}
 // 				}
 // 			}
 // 		}
 // 	}
+// 	return false
+// }
 
-// 	// Restore the original connections after finding paths
-// 	for name, station := range stations {
-// 		station.Connections = append([]*data.Station{}, originalConnections[name]...)
+// // updateOccupiedStations remains the same as in the original code
+// func updateOccupiedStations(path []string, occupiedStations map[string]map[int]bool, start, end string) {
+// 	for time, station := range path {
+// 		if station != start && station != end {
+// 			if occupiedStations[station] == nil {
+// 				occupiedStations[station] = make(map[int]bool)
+// 			}
+// 			occupiedStations[station][time] = true
+// 		}
 // 	}
+// }
 
-// 	// Return the found paths or an error if no paths were found
-// 	if len(paths) == 0 {
-// 		return nil, errors.New("no paths found")
+// // createOccupations generates occupation information for a given path
+// func createOccupations(path []string, trainID int) []OccupationInfo {
+// 	occupations := make([]OccupationInfo, len(path))
+// 	for i, station := range path {
+// 		occupations[i] = OccupationInfo{Station: station, Time: i, TrainID: trainID}
 // 	}
+// 	return occupations
+// }
 
-// 	return paths, nil
+// // max returns the maximum of two integers
+// func max(a, b int) int {
+// 	if a > b {
+// 		return a
+// 	}
+// 	return b
 // }

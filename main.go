@@ -43,10 +43,14 @@ func main() {
 		return
 	}
 
-	paths, err := functions.FindPaths(startStationName, endStationName, stations, numTrains)
+	paths, occupations, err := functions.FindPaths(startStationName, endStationName, stations, numTrains)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Error finding paths:", err)
 		return
 	}
+
+	// You can use the occupations data here if needed
+	_ = occupations
+
 	functions.SimulateTrains2(paths, numTrains)
 }

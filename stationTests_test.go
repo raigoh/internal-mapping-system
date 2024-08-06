@@ -56,7 +56,7 @@ func TestPathfinder(t *testing.T) {
 			if actualTurns != tc.expectedTurns {
 				t.Errorf("%sWanted minimum %d turns, got %d turns.\nOutput:\n%s%s", ColorRed, tc.expectedTurns, actualTurns, output, ColorReset)
 			} else {
-				fmt.Printf("%sTest passed for %s to %s with %d trains.%s\n", ColorGreen, tc.startStation, tc.endStation, tc.numberOfTrains, ColorReset)
+				fmt.Printf("%sTest passed for %s to %s with %d trains.%s\nOutput:\n%s%s", ColorGreen, tc.startStation, tc.endStation, tc.numberOfTrains, ColorGreen, output, ColorReset)
 			}
 		})
 	}

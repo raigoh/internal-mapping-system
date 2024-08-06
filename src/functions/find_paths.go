@@ -40,7 +40,8 @@ func FindPaths(start, end string, stations map[string]*data.Station, numTrains i
 		paths[i] = path
 		occupations[i] = createOccupations(path, i)
 	}
-	// fmt.Println("PATH", paths)
+
+	//fmt.Println("PATH ", paths)
 	return paths, occupations, nil
 }
 

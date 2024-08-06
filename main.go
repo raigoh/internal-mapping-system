@@ -52,5 +52,6 @@ func main() {
 	// You can use the occupations data here if needed
 	_ = occupations
 
-	functions.SimulateTrains2(paths, numTrains)
+	//functions.SimulateTrains2(paths, numTrains)
+	functions.PrintTestOutput(paths)
 }

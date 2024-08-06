@@ -15,6 +15,7 @@ type trainsPaths struct {
 
 // SimulateTrains2 simulates train movements along predefined paths
 func SimulateTrains2(paths [][]string, numTrains int) {
+
 	var trains []trainsPaths
 	var tempRoute []string
 	routeIndex := 0
@@ -105,19 +106,19 @@ func SimulateTrains2(paths [][]string, numTrains int) {
 	}
 
 	// Print the simulated paths using the new function
-	printTestOutput(simulatedPaths)
+	PrintTestOutput(simulatedPaths)
 }
 
 // printTestOutput prints the test output in a more readable format
-func printTestOutput(paths [][]string) {
+func PrintTestOutput(paths [][]string) {
 	maxLen := 0
 	for _, path := range paths {
 		if len(path) > maxLen {
-			maxLen = len(path)
+			maxLen = len(path) - 1
 		}
 	}
 
-	for step := 0; step < maxLen; step++ {
+	for step := 1; step < maxLen+1; step++ {
 		changes := false
 		line := fmt.Sprintf("Step %d: ", step)
 		for trainID, path := range paths {

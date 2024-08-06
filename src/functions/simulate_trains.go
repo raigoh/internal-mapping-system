@@ -4,6 +4,7 @@ import (
 	"fmt"
 )
 
+/*
 // trainsPaths represents the state and route of a train
 type trainsPaths struct {
 	TrainID   int
@@ -12,6 +13,7 @@ type trainsPaths struct {
 	Finished  bool
 	Skip      bool
 }
+
 
 // SimulateTrains2 simulates train movements along predefined paths
 func SimulateTrains2(paths [][]string, numTrains int) {
@@ -108,7 +110,7 @@ func SimulateTrains2(paths [][]string, numTrains int) {
 	// Print the simulated paths using the new function
 	PrintTestOutput(simulatedPaths)
 }
-
+*/
 // printTestOutput prints the test output in a more readable format
 func PrintTestOutput(paths [][]string) {
 	maxLen := 0

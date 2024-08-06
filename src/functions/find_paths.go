@@ -116,18 +116,31 @@ func selectOptimalPaths(allPaths [][]string, numTrains int, start, end string) [
 	timeStep := 0
 
 	for len(selectedPaths) < numTrains {
+
 		for _, path := range allPaths {
-			if len(selectedPaths) >= numTrains {
-				break
-			}
-			if !pathConflicts(path, timeStep) {
-				addPath(path, timeStep)
+			if len(selectedPaths) < numTrains {
+				if len(selectedPaths) >= numTrains {
+					break
+				}
+				// PathConflict and its NOT the last train
+				if !pathConflicts(path, timeStep) && len(selectedPaths) != numTrains-1 {
+					addPath(path, timeStep)
+					// Else if check pathConflicts and IT IS the last train
+				} else if !pathConflicts(path, timeStep) && len(selectedPaths) == numTrains-1 {
+					// IF the length of the path is +1 versus the other path.. Choose the shorter path
+					if len(allPaths) == 2 && len(allPaths[0])+1 < len(allPaths[1]) {
+						addPath(allPaths[0], timeStep+1)
+					} else {
+						addPath(path, timeStep)
+					}
+				}
 			}
 		}
 		timeStep++
 		if timeStep > maxPathLength*numTrains {
 			break // Safety check to prevent infinite loop
 		}
+		//}
 	}
 
 	return selectedPaths

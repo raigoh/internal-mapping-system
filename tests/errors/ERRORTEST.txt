@@ -3,3 +3,6 @@ go run cmd/main.go network.map waterloo st_pancras 2 2
 
 //Test for too few arguments
 go run cmd/main.go network.map waterloo st_pancras 
+
+// IF YOU DARE!! TRY THIS:
+go run cmd/main.go tests/errors/tenK_bench.txt station1 station10000 10000

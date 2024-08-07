@@ -1,0 +1,16 @@
+go run cmd/main.go tests/errors/14duplicate-routes_london.txt waterloo st_pancras 2 
+go run cmd/main.go tests/errors/14duplicate-routes_london.txt waterloo st_pancras 2 2
+go run cmd/main.go tests/errors/22no-connections_london waterloo.txt st_pancras 2
+go run cmd/main.go tests/errors/19duplicate-names_london.txt waterloo st_pancras 2
+go run cmd/main.go network.map waterloo st_pancras 
+go run cmd/main.go tests/errors/10no-start-station_london.txt waterloo st_pancras 2
+go run cmd/main.go tests/errors/11no-end-station_london.txt waterloo st_pancras 2 
+go run cmd/main.go tests/errors/11no-end-station_london.txt waterloo st_pancras 2 
+go run cmd/main.go tests/errors/21no-stations_london.txt waterloo st_pancras 2
+go run cmd/main.go tests/errors/16no-valid-coord_london.txt waterloo st_pancras 2
+go run cmd/main.go network.map waterloo st_pancras -2
+go run cmd/main.go tests/errors/invalidname_london.txt waterloo st_pancras 2
+go run cmd/main.go tests/errors/17same-coords_london.txt waterloo st_pancras 2
+go run cmd/main.go network.map waterloo waterloo 2
+go run cmd/main.go tests/errors/13no-path_london.txt waterloo st_pancras 2
+go run cmd/main.go tests/errors/23over-tenK.txt station1 station10001 2

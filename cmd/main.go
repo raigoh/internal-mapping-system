@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -8,30 +9,45 @@ import (
 	"station/internal/io"
 	"station/internal/pathfinding"
 	"station/internal/utils"
+	"station/internal/visualization"
 	"strconv"
 )
 
 func main() {
-	// Check for help flag
-	if len(os.Args) > 1 && (os.Args[1] == "--help" || os.Args[1] == "-h") {
+	// Add visualization flag
+	var visualize bool
+	var help bool
+	flag.BoolVar(&visualize, "v", false, "Enable visualization")
+	flag.BoolVar(&help, "h", false, "Show help")
+
+	// Define a custom usage function that does nothing
+	// We'll call PrintUsage manually when needed
+	flag.Usage = func() {}
+
+	// Parse flags
+	flag.Parse()
+
+	// Check for help flag (either -h or --help)
+	if help || (len(os.Args) > 1 && os.Args[1] == "--help") {
 		utils.PrintUsage()
 		return
 	}
 
-	// Check if the correct number of command-line arguments is provided
-	if len(os.Args) != 5 {
+	// Check if the correct number of non-flag arguments is provided
+	if flag.NArg() != 4 {
 		fmt.Fprintf(os.Stderr, "%sError: Incorrect number of arguments%s\n", utils.Red, utils.Reset)
-		utils.PrintUsage()
+		fmt.Fprintf(os.Stderr, "Use: 'go run cmd/main.go -h' for usage information\n")
 		return
 	}
 
 	// Extract command-line arguments
-	networkMapArg := os.Args[1] // Path to the network map file as provided in arguments
-	startStationName := os.Args[2]
-	endStationName := os.Args[3]
+	args := flag.Args()
+	networkMapArg := args[0] // Path to the network map file as provided in arguments
+	startStationName := args[1]
+	endStationName := args[2]
 
 	// Parse the number of trains, ensuring it's a positive integer
-	numTrains, err := strconv.Atoi(os.Args[4])
+	numTrains, err := strconv.Atoi(args[3])
 	if err != nil || numTrains <= 0 {
 		fmt.Fprintf(os.Stderr, "%sError: number_of_trains must be a valid positive integer%s\n", utils.Red, utils.Reset)
 		return
@@ -85,6 +101,14 @@ func main() {
 
 	// Note: occupations data is available here but not used in this version
 	_ = occupations
+
+	// Create visualization if flag is set
+	if visualize {
+		err = visualization.CreateVisualization(selectedNetwork, paths)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%sError creating visualization: %v%s\n", utils.Red, err, utils.Reset)
+		}
+	}
 
 	// Simulate and display the train movements
 	pathfinding.SimTrain(paths)

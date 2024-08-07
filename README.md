@@ -8,9 +8,10 @@
 4. [Usage](#usage)
 5. [Command-Line Arguments](#command-line-arguments)
 6. [Algorithm Overview](#algorithm-overview)
-7. [Testing](#testing)
-8. [Error Handling](#error-handling)
-9. [Contributing](#contributing)
+7. [Visualization](#visualization)
+8. [Testing](#testing)
+9. [Error Handling](#error-handling)
+10. [Contributing](#contributing)
 
 ## Introduction
 
@@ -76,7 +77,7 @@ This command will display the help message, guiding you on how to use the progra
 For example:
 
 ```bash
-go run cmd/main.go stations/network.map waterloo st_pancras 4
+go run cmd/main.go network.map waterloo st_pancras 4
 ```
 
 ## Command-Line Arguments
@@ -97,13 +98,22 @@ Additional flags:
 3. Optimal paths are selected based on the number of trains, minimizing conflicts and travel time.
 4. The program simulates the movement of trains along their paths and outputs the results.
 
+## Visualization
+
+The project includes a visualization feature that generates a PNG image of the network and train paths. This visual representation helps in understanding the layout of the railway network and the routes taken by the trains.
+
+### Key Features of the Visualization
+
+- **Stations**: Represented as blue circles with their names in red.
+- **Connections**: Between stations are shown as gray lines.
+- **Train Paths**: Displayed in different colors (red, green, orange, magenta) for easy distinction.
+- **Grid and Axes**: Included for better spatial understanding.
+
+To generate the visualization, the program automatically creates a file named `network_visualization.png` in the project root directory after calculating the optimal paths.
+
 ## Testing
 
 To run the tests, navigate to the project root directory and execute:
-
-```bash
-go test ./tests
-```
 
 For verbose output:
 

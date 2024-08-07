@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"station/internal/core"
 	"station/internal/io"
 	"station/internal/pathfinding"
@@ -36,8 +37,21 @@ func main() {
 		return
 	}
 
-	// Use the network map path as provided in the arguments
-	networkMap := networkMapArg
+	// Get the current working directory
+	cwd, err := os.Getwd()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%sError: Unable to get current working directory: %v%s\n", utils.Red, err, utils.Reset)
+		return
+	}
+
+	// Construct the full path to the network map file
+	networkMap := filepath.Join(cwd, networkMapArg)
+
+	// If the file doesn't exist, try looking in the stations folder at the project root
+	if _, err := os.Stat(networkMap); os.IsNotExist(err) {
+		projectRoot := filepath.Dir(filepath.Dir(cwd)) // Assuming cmd is one level deep in the project structure
+		networkMap = filepath.Join(projectRoot, "stations", networkMapArg)
+	}
 
 	// Read and parse the network map
 	networks, err := io.ReadMap(networkMap)

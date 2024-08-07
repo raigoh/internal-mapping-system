@@ -28,6 +28,7 @@ var testCases = []struct {
 	{"network.map", "bond_square", "space_port", 4, 6},
 }
 
+// runCommand executes the main program with given parameters and returns its output
 func runCommand(mapFile, start, end string, numTrains int) (string, error) {
 	// Get the current working directory
 	cwd, err := os.Getwd()
@@ -50,21 +51,27 @@ func runCommand(mapFile, start, end string, numTrains int) (string, error) {
 	return out.String(), err
 }
 
+// TestPathfinder is the main test function that runs all test cases
 func TestPathfinder(t *testing.T) {
 	for _, tc := range testCases {
+		// Create a subtest for each test case
 		t.Run(fmt.Sprintf("%s_%s", tc.startStation, tc.endStation), func(t *testing.T) {
+			// Run the command and get its output
 			output, err := runCommand(tc.mapFile, tc.startStation, tc.endStation, tc.numberOfTrains)
 
+			// Check if the map is too large (contains more than 10000 stations)
 			if strings.Contains(output, "Error: Map contains more than 10000 stations") {
 				t.Logf("%sMap contains more than 10000 stations, skipping test%s", utils.Red, utils.Reset)
 				return
 			}
 
+			// Check if the command execution failed
 			if err != nil {
 				t.Errorf("%sFailed to run command: %v\nOutput: %s%s", utils.Red, err, output, utils.Reset)
 				return
 			}
 
+			// Count the number of turns (lines) in the output
 			lines := strings.Split(strings.TrimSpace(output), "\n")
 			actualTurns := len(lines)
 

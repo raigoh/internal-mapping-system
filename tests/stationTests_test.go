@@ -28,6 +28,27 @@ var testCases = []struct {
 	{"network.map", "bond_square", "space_port", 4, 6},
 }
 
+var errorTestCases = []struct {
+	mapFile        string
+	startStation   string
+	endStation     string
+	numberOfTrains int
+}{
+	{"/tests/errors/14duplicate-routes_london.txt", "waterloo", "st_pancras", 2},
+	{"tests/errors/22no-connections_london.txt", "waterloo", "st_pancras", 2},
+	{"tests/errors/19duplicate-names_london.txt", "waterloo", "st_pancras", 2},
+	{"tests/errors/10no-start-station_london.txt", "waterloo", "st_pancras", 2},
+	{"tests/errors/11no-end-station_london.txt", "waterloo", "st_pancras", 2},
+	{"tests/errors/21no-stations_london.txt", "waterloo", "st_pancras", 2},
+	{"tests/errors/16no-valid-coord_london.txt", "waterloo", "st_pancras", 2},
+	{"network.map", "waterloo", "st_pancras", -2},
+	{"tests/errors/invalidname_london.txt", "waterloo", "st_pancras", 2},
+	{"tests/errors/17same-coords_london.txt", "waterloo", "st_pancras", 2},
+	{"network.map", "waterloo", "waterloo", 2},
+	{"tests/errors/13no-path_london.txt", "waterloo", "st_pancras", 2},
+	{"tests/errors/23over-tenK.txt", "station1", "station10001", 2},
+}
+
 // runCommand executes the main program with given parameters and returns its output
 func runCommand(mapFile, start, end string, numTrains int) (string, error) {
 	// Get the current working directory
@@ -40,10 +61,10 @@ func runCommand(mapFile, start, end string, numTrains int) (string, error) {
 	mainPath := filepath.Join(filepath.Dir(cwd), "cmd", "main.go")
 
 	// Construct the full path to the map file (in the stations folder)
-	mapPath := filepath.Join(filepath.Dir(cwd), mapFile)
+	//mapPath := filepath.Join(filepath.Dir(cwd), mapFile)
 
 	// Prepare the command to run the main program
-	cmd := exec.Command("go", "run", mainPath, mapPath, start, end, fmt.Sprint(numTrains))
+	cmd := exec.Command("go", "run", mainPath, mapFile, start, end, fmt.Sprint(numTrains))
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	cmd.Stderr = &out
@@ -86,5 +107,16 @@ func TestPathfinder(t *testing.T) {
 					utils.Green, output, utils.Reset)
 			}
 		})
+	}
+}
+
+func TestErrors(t *testing.T) {
+	for _, tc := range errorTestCases {
+		output, _ := runCommand(tc.mapFile, tc.startStation, tc.endStation, tc.numberOfTrains)
+		if strings.HasPrefix(output, "[31mError:") {
+			t.Logf("%sGot error as expected: %s%s", utils.Green, output, utils.Reset)
+		} else {
+			t.Errorf("%sCould not get an error, Output: %s%s", utils.Red, output, utils.Reset)
+		}
 	}
 }

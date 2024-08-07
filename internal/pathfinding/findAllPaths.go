@@ -1,6 +1,6 @@
-package functions
+package pathfinding
 
-import "station/src/data"
+import "station/internal/model"
 
 // findAllPaths uses depth-first search to find all possible paths from start to end
 // Parameters:
@@ -12,7 +12,7 @@ import "station/src/data"
 // Returns:
 //
 //	A slice of slices, where each inner slice represents a valid path from start to end
-func findAllPaths(start, end string, stations map[string]*data.Station) [][]string {
+func findAllPaths(start, end string, stations map[string]*model.Station) [][]string {
 	// Initialize a slice to store all found paths
 	var allPaths [][]string
 

@@ -1,4 +1,4 @@
-package data
+package model
 
 // Station represents a railway station in the network.
 type Station struct {

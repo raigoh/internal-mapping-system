@@ -1,4 +1,4 @@
-package functions
+package pathfinding
 
 // selectOptimalPaths selects the best paths for multiple trains while avoiding conflicts
 // Parameters:

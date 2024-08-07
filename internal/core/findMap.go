@@ -19,18 +19,37 @@ import (
 //	map[string]*data.Station: The selected network's station map
 //	error: An error if no appropriate map is found
 func FindAppropriateMap(networks map[string]map[string]*model.Station, start, end string) (string, map[string]*model.Station, error) {
-	// Iterate through all available networks
+	var startExists, endExists bool
+
+	// Iterate through all available networks to check if the start and end stations exist
+	for _, network := range networks {
+		if _, exists := network[start]; exists {
+			startExists = true
+		}
+		if _, exists := network[end]; exists {
+			endExists = true
+		}
+	}
+
+	// If start station does not exist in any network
+	if !startExists {
+		return "", nil, fmt.Errorf("%sError: Start station does not exist%s", utils.Red, utils.Reset)
+	}
+
+	// If end station does not exist in any network
+	if !endExists {
+		return "", nil, fmt.Errorf("%sError: End station does not exist%s", utils.Red, utils.Reset)
+	}
+
+	// Iterate through all available networks to find one containing both the start and end stations
 	for name, network := range networks {
-		// Check if the start station exists in the current network
 		if _, startExists := network[start]; startExists {
-			// If the start station exists, check if the end station also exists
 			if _, endExists := network[end]; endExists {
-				// If both start and end stations exist in this network, return it
 				return name, network, nil
 			}
 		}
 	}
 
-	// If no suitable network is found, return an error with red color
+	// If no suitable network is found
 	return "", nil, fmt.Errorf("%sError: No map contains both the start and end stations%s", utils.Red, utils.Reset)
 }

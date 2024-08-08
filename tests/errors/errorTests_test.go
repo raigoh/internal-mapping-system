@@ -48,18 +48,18 @@ func TestErrorCases(t *testing.T) {
 		{"17same-coords_london.txt", "waterloo", "st_pancras", 2, "Error: Two stations exist at the same coordinates"},
 		{"18station-not-exist_london.txt", "waterloo", "st_pancras", 2, "Error: Station does not exist in network"},
 		{"19duplicate-names_london.txt", "waterloo", "st_pancras", 2, "Error: Duplicate station names"},
-		{"21no-stations_london.txt", "waterloo", "st_pancras", 2, "Error: Network 'london' does not contain a 'stations:' section"},
-		{"22no-connections_london.txt", "waterloo", "st_pancras", 2, "Error: Network 'london' does not contain a 'connections:' section"},
+		{"21no-stations_london.txt", "waterloo", "st_pancras", 2, "Error: Network 'London Network Map' does not contain a 'stations:' section"},
+		{"22no-connections_london.txt", "waterloo", "st_pancras", 2, "Error: Network 'London Network Map' does not contain a 'connections:' section"},
 		{"23over-tenK.txt", "station1", "station10001", 2, "Error: Map contains more than 10000 stations"},
 		{"invalidname_london.txt", "waterloo", "st_pancras", 2, "Error: Invalid station name in network"},
-		{"../network.map", "waterloo", "st_pancras", -2, "Error: number_of_trains must be a valid positive integer"},
+		{"network.map", "waterloo", "st_pancras", -2, "Error: number_of_trains must be a valid positive integer"},
 	}
 
 	for _, tc := range errorTestCases {
 		testName := tc.mapFile
 		t.Run(testName, func(t *testing.T) {
 			var mapPath string
-			if tc.mapFile == "../network.map" {
+			if tc.mapFile == "network.map" {
 				mapPath = filepath.Join(testsDir, tc.mapFile)
 			} else {
 				mapPath = filepath.Join(testsDir, tc.mapFile)

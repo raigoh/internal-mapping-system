@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func parseConnection(line string, stations map[string]*model.Station, network string, startStation string, endStation string) error {
+func parseConnection(line string, stations map[string]*model.Station, network string) error {
 	parts := strings.Split(line, "-")
 	if len(parts) != 2 {
 		return utils.ErrInvalidConnectionFormat(network, line)
@@ -23,24 +23,11 @@ func parseConnection(line string, stations map[string]*model.Station, network st
 	s1, exists1 := stations[station1]
 	s2, exists2 := stations[station2]
 
-	_, exists3 := stations[startStation]
-	_, exists4 := stations[endStation]
-
-	if !exists3 {
-		return fmt.Errorf(utils.ErrStartStationNotExist)
-	}
-	if !exists4 {
-		return fmt.Errorf(utils.ErrEndStationNotExist)
-	}
-
 	if !exists1 {
-
 		return fmt.Errorf(utils.ErrStationDoesNotExistInConnections)
-
 	}
 	if !exists2 {
 		return fmt.Errorf(utils.ErrStationDoesNotExistInConnections)
-
 	}
 
 	// Check for duplicate connections

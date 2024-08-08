@@ -82,7 +82,14 @@ func ReadMap(filepath string, startStation string, endStation string) (map[strin
 					return nil, err
 				}
 			} else if inConnectionsSection {
-				if err := parseConnection(line, currentStations, currentNetwork, startStation, endStation); err != nil {
+
+				// err = validateStations(allNetworks, startStation, endStation)
+
+				if err := parseConnection(line, currentStations, currentNetwork); err != nil {
+					err2 := validateStations(allNetworks, startStation, endStation)
+					if err2 != nil {
+						return nil, err2
+					}
 					return nil, err
 				}
 			} else {
@@ -114,5 +121,39 @@ func validateNetwork(network string, hasStations, hasConnections bool) error {
 	if !hasConnections {
 		return utils.ErrNoConnectionsSections(network)
 	}
+	return nil
+}
+
+type errorString struct {
+	s string
+}
+
+func New(text string) error {
+	return &errorString{text}
+}
+func (e *errorString) Error() string {
+	return e.s
+}
+
+func validateStations(stations map[string]map[string]*model.Station, start string, end string) error {
+	endExist := false
+	startExist := false
+	for _, t := range stations {
+		for _, x := range t {
+			if x.Name == start {
+				startExist = true
+			}
+			if x.Name == end {
+				endExist = true
+			}
+		}
+	}
+	if !startExist {
+		return New(utils.ErrStartStationNotExist)
+	}
+	if !endExist {
+		return New(utils.ErrEndStationNotExist)
+	}
+
 	return nil
 }

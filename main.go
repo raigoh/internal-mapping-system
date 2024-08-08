@@ -12,6 +12,17 @@ import (
 	"strconv"
 )
 
+type errorString struct {
+	s string
+}
+
+func New(text string) error {
+	return &errorString{text}
+}
+func (e *errorString) Error() string {
+	return e.s
+}
+
 func main() {
 	var visualize bool
 	var help bool
@@ -41,10 +52,11 @@ func main() {
 	numTrains, err := strconv.Atoi(args[3])
 	if err != nil || numTrains <= 0 {
 		fmt.Fprintf(os.Stderr, "%s%s%s\n", utils.Red, utils.ErrInvalidTrainCount, utils.Reset)
+		os.Exit(1)
 		return
 	}
 
-	networks, err := io.ReadMap(networkMapFile)
+	networks, err := io.ReadMap(networkMapFile, startStationName, endStationName)
 	if err != nil {
 		printError(err)
 		return
@@ -57,7 +69,8 @@ func main() {
 	}
 
 	if startStationName == endStationName {
-		fmt.Fprintf(os.Stderr, "%s%s%s\n", utils.Red, utils.ErrSameStartEndStation, utils.Reset)
+		err := New(utils.ErrSameStartEndStation + "WTF?!?")
+		printError(err)
 		return
 	}
 

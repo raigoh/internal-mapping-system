@@ -13,7 +13,7 @@ const maxStations = 10000
 
 // ReadMap reads and parses the network map from the specified file.
 // It returns a map of network names to maps of station names to Station structs, and any error encountered.
-func ReadMap(filepath string) (map[string]map[string]*model.Station, error) {
+func ReadMap(filepath string, startStation string, endStation string) (map[string]map[string]*model.Station, error) {
 	file, err := os.Open(filepath)
 	if err != nil {
 		return nil, fmt.Errorf("%v", err)
@@ -82,7 +82,7 @@ func ReadMap(filepath string) (map[string]map[string]*model.Station, error) {
 					return nil, err
 				}
 			} else if inConnectionsSection {
-				if err := parseConnection(line, currentStations, currentNetwork); err != nil {
+				if err := parseConnection(line, currentStations, currentNetwork, startStation, endStation); err != nil {
 					return nil, err
 				}
 			} else {

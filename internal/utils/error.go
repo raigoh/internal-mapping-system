@@ -11,12 +11,13 @@ const (
 	ErrTooManyArgs       = "Error: Too many command line arguments"
 
 	// Station Errors
-	ErrStartStationNotExist  = "Error: Start station does not exist"
-	ErrEndStationNotExist    = "Error: End station does not exist"
-	ErrSameStartEndStation   = "Error: Start and end station are the same"
-	ErrDuplicateStationNames = "Error: Duplicate station names"
-	ErrInvalidStationNames   = "Error: Invalid station name in network"
-	ErrSameCoordinates       = "Error: Two stations exist at the same coordinates"
+	ErrStartStationNotExist             = "Error: Start station does not exist"
+	ErrEndStationNotExist               = "Error: End station does not exist"
+	ErrSameStartEndStation              = "Error: Start and end station are the same"
+	ErrDuplicateStationNames            = "Error: Duplicate station names"
+	ErrInvalidStationNames              = "Error: Invalid station name in network"
+	ErrSameCoordinates                  = "Error: Two stations exist at the same coordinates"
+	ErrStationDoesNotExistInConnections = "Error: Connetion to non existing station"
 
 	// Connection Errors
 	ErrNoPath                = "Error: no paths found"

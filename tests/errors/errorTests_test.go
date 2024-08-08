@@ -1,10 +1,10 @@
 package tests
 
 import (
-	"fmt"
 	"os/exec"
 	"path/filepath"
 	"station/internal/utils"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -46,13 +46,13 @@ func TestErrorCases(t *testing.T) {
 		{"14duplicate-routes_london.txt", "waterloo", "st_pancras", 2, "Error: Duplicate connection between"},
 		{"16no-valid-coord_london.txt", "waterloo", "st_pancras", 2, "Error: Invalid x coordinate for station"},
 		{"17same-coords_london.txt", "waterloo", "st_pancras", 2, "Error: Two stations exist at the same coordinates"},
-		{"18station-not-exist_london.txt", "waterloo", "st_pancras", 2, "Error: Station does not exist in network"},
+		{"18station-not-exist_london.txt", "waterloo", "st_pancras", 2, "Error: Connetion to non existing station"},
 		{"19duplicate-names_london.txt", "waterloo", "st_pancras", 2, "Error: Duplicate station names"},
 		{"21no-stations_london.txt", "waterloo", "st_pancras", 2, "Error: Network 'London Network Map' does not contain a 'stations:' section"},
 		{"22no-connections_london.txt", "waterloo", "st_pancras", 2, "Error: Network 'London Network Map' does not contain a 'connections:' section"},
 		{"23over-tenK.txt", "station1", "station10001", 2, "Error: Map contains more than 10000 stations"},
 		{"invalidname_london.txt", "waterloo", "st_pancras", 2, "Error: Invalid station name in network"},
-		{"network.map", "waterloo", "st_pancras", -2, "Error: number_of_trains must be a valid positive integer"},
+		{"network.map", "waterloo", "st_pancras", -2, "Error: Number of trains is not a valid positive integer"},
 	}
 
 	for _, tc := range errorTestCases {
@@ -65,11 +65,11 @@ func TestErrorCases(t *testing.T) {
 				mapPath = filepath.Join(testsDir, tc.mapFile)
 			}
 
-			cmd := exec.Command("go", "run", mainPath, mapPath, tc.startStation, tc.endStation, fmt.Sprintf("%d", tc.numberOfTrains))
+			cmd := exec.Command("go", "run", mainPath, mapPath, tc.startStation, tc.endStation, strconv.Itoa(tc.numberOfTrains))
 			output, err := cmd.CombinedOutput()
 
 			if err == nil {
-				t.Errorf("%sFAILED: %s - Expected an error, but got none%s", utils.Red, testName, utils.Reset)
+				t.Errorf("%sFAILED: %s - Expected an error, but got none, output is: %s%s", utils.Red, testName, output, utils.Reset)
 			} else if !strings.Contains(string(output), tc.expectedError) {
 				t.Errorf("%sFAILED: %s - Expected error containing '%s', but got: %s%s", utils.Red, testName, tc.expectedError, string(output), utils.Reset)
 			} else {

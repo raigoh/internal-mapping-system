@@ -23,30 +23,38 @@ The project is organized as follows:
 
 ```bash
 stations/
-├── cmd/
-│ └── main.go
 ├── internal/
 │ ├── core/
-│ │ ├── findAppropriateMap.go
 │ │ └── occupations.go
 │ ├── io/
+│ │ ├── parseConnection.go
+│ │ ├── parseStation.go
 │ │ └── readMap.go
 │ ├── model/
 │ │ └── struct.go
 │ ├── pathfinding/
 │ │ ├── findAllPaths.go
 │ │ ├── findPaths.go
-│ │ ├── selectOptimalPaths.go
+│ │ ├── OptimalPaths.go
 │ │ └── simTrain.go
 │ └── utils/
-│ ├── color.go
-│ └── usage.go
+│ │ ├── color.go
+│ │ ├── error.go
+│ │ └── usage.go
+│ ├── visualization
+│ └── ── visual.go
 ├── tests/
-│ └── stationTests_test.go
-├── stations/
-│ └── network.map
+│ ├── errors
+│ │ ├── 10no-start-station_london.txt
+│ │ ├── 11no-end-station_london.txt
+│ │ ├── 12same-start-end_london.txt
+│ │ ├── ...
+│ ├── stationTests_test.go
+│ └── testutils_test.go
 ├── .gitignore
 ├── go.mod
+├── main.go
+├── network.map
 └── README.md
 ```
 
@@ -69,7 +77,7 @@ cd stations
 To run the program, use the following command from the project root directory:
 
 ```bash
-go run cmd/main.go -h
+go run . -h
 ```
 
 This command will display the help message, guiding you on how to use the program and the necessary command-line arguments.
@@ -77,12 +85,12 @@ This command will display the help message, guiding you on how to use the progra
 For example:
 
 ```bash
-go run cmd/main.go network.map waterloo st_pancras 4
+go run . network.map waterloo st_pancras 4
 ```
 
 ## Command-Line Arguments
 
-- `<network_map>`: Path to the network map file (relative to the `stations/` directory)
+- `<network_map>`: Path to the network map file
 - `<start_station>`: Name of the starting station
 - `<end_station>`: Name of the destination station
 - `<number_of_trains>`: Number of trains to schedule (positive integer)
@@ -104,21 +112,56 @@ The project includes a visualization feature that generates a PNG image of the n
 
 ### Key Features of the Visualization
 
-- **Stations**: Represented as blue circles with their names in red.
+- **Stations**: Represented as blue circles with their names in white text on a blue background.
 - **Connections**: Between stations are shown as gray lines.
 - **Train Paths**: Displayed in different colors (red, green, orange, magenta) for easy distinction.
 - **Grid and Axes**: Included for better spatial understanding.
 
-To generate the visualization, the program automatically creates a file named `network_visualization.png` in the project root directory after calculating the optimal paths.
+The visualization is automatically generated after calculating the optimal paths and saved as `network_visualization.png` in the project root directory.
+
+### Example Visualization
+
+Here's an example of what the visualization looks like:
+
+![Network Visualization](network_visualization.png)
+
+In this image:
+
+- Blue circles represent stations, with station names in white text on a blue background.
+- Gray lines show connections between stations.
+- Colored lines (red, green, orange, magenta) represent different train paths.
+- The background grid helps with spatial orientation.
+
+This visualization makes it easy to understand the network layout and the routes chosen by the algorithm for each train.
+
+### How to Run the Visualization
+
+To generate the visualization, you need to run the program with the appropriate command-line arguments. Here’s an example of how to do this:
+
+```bash
+go run . -v network.map waterloo st_pancras 4
+```
 
 ## Testing
 
 To run the tests, navigate to the project root directory and execute:
 
-For verbose output:
+1. For network cases:
 
 ```bash
 go test ./tests -v
+```
+
+2. For error cases:
+
+```bash
+go test ./tests/errors -v
+```
+
+3. For clean cache:
+
+```bash
+go run -testcache
 ```
 
 ## Error Handling

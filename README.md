@@ -63,7 +63,7 @@ stations/
 1. Clone this repository:
 
 ```bash
-git clone https://gitea.koodsisu.fi/raigohoim/stations.git
+git clone https://github.com/raigoh/internal-mapping-system.git
 ```
 
 2. Navigate to the project directory:

@@ -22,7 +22,7 @@ This project implements a train pathfinding system that finds optimal routes for
 The project is organized as follows:
 
 ```bash
-stations/
+internal-mapping-system/
 ├── internal/
 │ ├── core/
 │ │ └── occupations.go
@@ -69,7 +69,7 @@ git clone https://github.com/raigoh/internal-mapping-system.git
 2. Navigate to the project directory:
 
 ```bash
-cd stations
+cd internal-mapping-system
 ```
 
 ## Usage
